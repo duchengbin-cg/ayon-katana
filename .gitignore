@@ -1,0 +1,19 @@
+.DS_Store
+Thumbs.db
+
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+.venv/
+venv/
+.python-version
+
+dist/
+build/
+*.egg-info/
+
+# Packaging output from create_package.py
+package/
+

@@ -1,0 +1,26 @@
+# ayon-katana
+
+AYON Host Addon for **Foundry Katana** (目标：Katana 9).
+
+该仓库目标是提供 Katana 的 AYON 集成（启动注入 + Host 注册 + Publish/Submit 工作流），使你可以在 Katana 内通过 AYON Publisher 提交（publish）当前 `.katana` 文件。
+
+## 主要思路（与 Foundry 机制对齐）
+
+- 通过环境变量 `KATANA_RESOURCES` 注入本 addon 的 Katana 资源目录（其中包含 `Startup/init.py`、`Shelves` 等）  
+- Katana 会在 `KATANA_RESOURCES` 下的 `Startup/init.py` 执行启动脚本（见 Foundry 文档）
+- 启动脚本调用 `ayon_core.pipeline.install_host()` 注册 `KatanaHost`
+
+## 开发与测试（建议）
+
+1. 将本仓库作为 AYON 的 dev addon 使用（或打包后安装到 bundle）
+2. 从 AYON Launcher 在某个 Project/Task 上下文启动 Katana
+3. 在 Katana 内运行 AYON Publisher（后续会通过 Shelf 提供入口）
+
+> 备注：本仓库不包含 Katana 本体，所以无法在此环境内直接运行 Katana 做端到端验证；实现方式参考了 Katana 官方开发文档中的资源/启动机制。
+
+## 目录结构
+
+- `package.py` - AYON addon 元信息
+- `server/` - server-side addon 定义（settings schema 等）
+- `client/ayon_katana/` - client-side（Host 集成、Katana 启动资源、publish/create 插件等）
+
