@@ -48,6 +48,25 @@ class KatanaAddon(AYONAddon, IHostAddon):
         # 3) Default envs
         env.setdefault("AYON_LOG_NO_COLORS", "1")
 
+        # 4) USD plug-in discovery for Katana's namespaced USD (fnpxr)
+        #
+        # AYON USD resolver (ayon-usd addon) sets `PXR_PLUGINPATH_NAME`.
+        # Katana expects `FNPXR_PLUGINPATH` for its namespaced USD library.
+        pxr_pluginpath = env.get("PXR_PLUGINPATH_NAME") or ""
+        if pxr_pluginpath:
+            old_fnpxr = env.get("FNPXR_PLUGINPATH") or ""
+            merged = []
+            for p in (old_fnpxr.split(os.pathsep) if old_fnpxr else []):
+                if p:
+                    merged.append(os.path.normpath(p))
+            for p in pxr_pluginpath.split(os.pathsep):
+                if not p:
+                    continue
+                p = os.path.normpath(p)
+                if p not in merged:
+                    merged.append(p)
+            env["FNPXR_PLUGINPATH"] = os.pathsep.join(merged)
+
     def get_launch_hook_paths(self, app):
         if app.host_name != self.host_name:
             return []
@@ -57,4 +76,3 @@ class KatanaAddon(AYONAddon, IHostAddon):
 
     def get_workfile_extensions(self):
         return [".katana"]
-
