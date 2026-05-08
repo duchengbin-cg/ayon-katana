@@ -5,10 +5,11 @@ This script creates a ready-to-upload zip (like other official AYON addons):
 
 `./package/<addon_name>-<addon_version>.zip`
 
-The zip contains:
+The zip root contains:
 
-`<addon_name>/<addon_version>/server/...`
-`<addon_name>/<addon_version>/private/client.zip`  (client/<client_dir> zipped)
+`package.py`
+`server/...`
+`private/client.zip`  (client/<client_dir> zipped)
 
 Usage:
     python create_package.py
@@ -75,18 +76,24 @@ def main():
     client_dir = getattr(package_module, "client_dir", None)
 
     out_root = os.path.abspath(args.output_dir)
-    dst_root = os.path.join(out_root, addon_name, addon_version)
     dst_zip_path = os.path.join(out_root, f"{addon_name}-{addon_version}.zip")
+    build_root = os.path.join(out_root, "_build")
 
-    _rmtree(dst_root)
+    _rmtree(build_root)
     if os.path.exists(dst_zip_path):
         os.remove(dst_zip_path)
-    _ensure_dir(dst_root)
+    _ensure_dir(build_root)
+
+    # Copy package.py (required by AYON when uploading addon zip)
+    src_package_py = os.path.join(root, "package.py")
+    if not os.path.exists(src_package_py):
+        raise RuntimeError(f"Missing package.py: {src_package_py}")
+    shutil.copy2(src_package_py, os.path.join(build_root, "package.py"))
 
     # Copy server
     server_src = os.path.join(root, "server")
     if os.path.exists(server_src):
-        shutil.copytree(server_src, os.path.join(dst_root, "server"))
+        shutil.copytree(server_src, os.path.join(build_root, "server"))
 
     # Zip client code into private
     if client_dir:
@@ -106,23 +113,23 @@ def main():
 
         _zip_dir(
             client_src,
-            os.path.join(dst_root, "private", "client.zip"),
+            os.path.join(build_root, "private", "client.zip"),
         )
 
     # Build final zip (ayon server expects a single zip file)
     _ensure_dir(out_root)
     with zipfile.ZipFile(dst_zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
-        # Put the folder under "<addon_name>/<addon_version>/"
-        base_prefix = os.path.join(addon_name, addon_version)
-        for root_dir, _dirs, files in os.walk(dst_root):
+        for root_dir, _dirs, files in os.walk(build_root):
             for fname in files:
                 abs_path = os.path.join(root_dir, fname)
-                rel = os.path.relpath(abs_path, dst_root)
-                zf.write(abs_path, os.path.join(base_prefix, rel))
+                rel = os.path.relpath(abs_path, build_root)
+                zf.write(abs_path, rel)
 
-    print(f"Package folder created: {dst_root}")
     print(f"Package zip created: {dst_zip_path}")
+    print("Zip root contains: package.py, server/, private/client.zip")
 
+    # Cleanup build folder
+    _rmtree(build_root)
 
 if __name__ == "__main__":
     main()
