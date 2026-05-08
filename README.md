@@ -43,3 +43,24 @@ AYON Host Addon for **Foundry Katana**（目标版本：**Katana 9.0v2**，平�
 - `package.py` - AYON addon 元信息
 - `server/` - server-side addon 定义（settings schema 等）
 - `client/ayon_katana/` - client-side（Host 集成、Katana 启动资源、publish/create 插件等）
+
+## 在 AYON 中启用（Bundles / Launcher）
+
+1. 在本仓库根目录运行打包脚本生成可上传 zip：
+
+   ```bash
+   python create_package.py
+   ```
+
+   生成文件：`./package/katana-<version>.zip`
+
+2. 在 AYON Web：`Studio Settings -> Bundles -> Install Addons...` 上传该 zip
+3. 将 `katana` addon 加入你的 bundle 并保存
+4. 在 `ayon-applications`（或 AYON 应用配置）中配置 Katana 9.0v2 的可执行文件路径
+5. 用 AYON Launcher 启动 Katana（会自动注入所需环境变量）
+
+### 注入到 Katana 的关键环境变量（本 addon 提供）
+
+- `KATANA_RESOURCES`：包含 `client/ayon_katana/resources`（用于 Startup/init.py、Shelves 等）
+- `KATANA_POST_PYTHONPATH`：包含 `client/ayon_katana/startup` 与 `vendor/python`
+- 若启用了 `ayon-usd` resolver：会将 `PXR_PLUGINPATH_NAME` 同步到 `FNPXR_PLUGINPATH` 以便 Katana 的 fnpxr USD 发现 resolver
