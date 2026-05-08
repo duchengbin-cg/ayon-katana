@@ -1,6 +1,6 @@
 name = "katana"
 title = "Katana"
-version = "0.0.2+dev"
+version = "0.0.3+dev"
 app_host_name = "katana"
 client_dir = "ayon_katana"
 project_can_override_addon_version = True

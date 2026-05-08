@@ -29,6 +29,15 @@ AYON Host Addon for **Foundry Katana**（目标版本：**Katana 9.0v2**，平�
 
 > 注意：USD/Lookfile 这两类实例依赖你在 Katana 里先把文件导出到磁盘（否则发布时会报“输出文件不存在”）。
 
+### 一键 Publish（自动触发写盘）
+
+已增加“发布前自动触发导出”的逻辑：
+
+- 对 `LookFileBake` 实例：尝试触发节点上的 **Write Look File**（脚本按钮）
+- 对 `UsdLayerExport` / `UsdExport` 实例：尝试触发节点上的 **Export/Write**（脚本按钮）
+
+如果你现场节点的按钮参数名与默认不一致，会导致无法触发；把节点参数截图发我，我会针对 Katana 9.0v2 做精确适配。
+
 ## 目录结构
 
 - `package.py` - AYON addon 元信息

@@ -17,7 +17,8 @@ class CollectOutputPathRepresentation(plugin.KatanaInstancePlugin):
     """
 
     label = "Collect Output Path Representation"
-    order = pyblish.api.CollectorOrder + 0.1
+    # Must run after `ExecuteKatanaExports` which can generate the files.
+    order = pyblish.api.CollectorOrder + 0.2
 
     def process(self, instance):
         output_path = instance.data.get("outputPath")
@@ -43,9 +44,8 @@ class CollectOutputPathRepresentation(plugin.KatanaInstancePlugin):
             raise PublishError(
                 f"输出文件不存在：{output_path}",
                 description=(
-                    "该实例来自 Katana 导出节点（例如 LookFileBake / UsdLayerExport）。\n"
-                    "请先在 Katana 里执行导出（例如点击 LookFileBake 的 "
-                    "'Write Look File' 或执行 USD export），确保文件写到磁盘后再发布。"
+                    "发布前导出动作已尝试自动触发，但仍未在磁盘找到输出。\n"
+                    "请检查节点的输出路径参数是否正确、是否有权限写入、以及节点是否报错。"
                 ),
             )
 
@@ -76,4 +76,3 @@ class CollectOutputPathRepresentation(plugin.KatanaInstancePlugin):
             "files": files,
             "stagingDir": staging_dir,
         }]
-
